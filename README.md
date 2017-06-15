@@ -4,11 +4,13 @@ Course Project by Ishan Patil, Yokila Arora, Thao Nguyen for CS231N (Spring 2017
 
 Our model is based on Laina, Iro, et al. "Deeper depth prediction with fully convolutional residual networks." 3D Vision (3DV), 2016 Fourth International Conference on. IEEE, 2016.
 
-We extend the above model for semantic segmentation (per-pixel class labelling) task for 37(+1 others) most frequent classes in the NYU Depth Dataset V2. More particularly, we transfer learn using the pre-trained weights (for the depth estimation task) from this model on an extension of the model as described in our report. Finally, our model is able to output both the depth map and the semantic segmentation of the input (single) RGB image. 
+We extend the above model for semantic segmentation (per-pixel class labelling) task for 37(+1 others) most frequent classes in the NYU Depth Dataset V2. More particularly, we transfer learn using the pre-trained weights (for the depth estimation task) from this model on an extension of the model as shown below. Finally, our model is able to output both the depth map and the semantic segmentation of the input (single) RGB image. 
+
+
 
 We provide the implementation in PyTorch, while the original implementation (https://github.com/iro-cp/FCRN-DepthPrediction) is in TensorFlow and MatConvNet frameworks. 
 
-To accomplish data augmentation (applying co-transforms on both input and target images simultaneously), we have used code from https://github.com/ClementPinard/FlowNetPytorch as PyTorch itself currently doesn't support this feature. 
+To accomplish data augmentation (applying co-transforms on both input and target images simultaneously), we have taken code (flow_transforms.py) from https://github.com/ClementPinard/FlowNetPytorch and modified it for our task, as PyTorch itself currently doesn't support this feature. 
 
 Before running the main file (main.py) to train the model (in model.py) for semantic segmentation task, perform the following steps -
 
