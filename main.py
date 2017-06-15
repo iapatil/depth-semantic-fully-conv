@@ -21,16 +21,13 @@ from nyu_dataset_loader import *
 from loss_function import *
 from utils import *
 
-#saved_predictions_dir = 'depth_predictions/'
-
-#input_rgb_images_dir = 'nyu_datasets/input/'
 input_rgb_images_dir = 'data/nyu_datasets_changed/input/'
 target_depth_images_dir = 'data/nyu_datasets_changed/target_depths/'
 target_labels_images_dir = 'data/nyu_datasets_changed/labels_38/'
 
-dtype = torch.cuda.FloatTensor ## change when running on GPU
+dtype = torch.cuda.FloatTensor ## change when running on CPU
 
-train_on = 1000 #make this 1000, val=449
+train_on = 1000 
 val_on = 100
 test_on = 50
 batch_size= 16
@@ -53,7 +50,7 @@ target_depth_transform = transforms.Compose([flow_transforms.Scale_Single(228),f
 target_labels_transform = transforms.Compose([flow_transforms.ArrayToTensor()])
 
 
-##Apply this transform on input, ground truth depth images and labeled images
+## Apply this transform on input, ground truth depth images and labeled images
 
 co_transform=flow_transforms.Compose([
             flow_transforms.RandomCrop((480,640)),
@@ -61,7 +58,7 @@ co_transform=flow_transforms.Compose([
         ])
 
 
-##Splitting in train, val and test sets [No data augmentation on val and test, only on train]
+## Splitting in train, val and test sets [No data augmentation on val and test, only on train]
 
 train_dataset = ListDataset(data_dir,train_listing,input_transform,target_depth_transform,\
                             target_labels_transform,co_transform)
@@ -77,13 +74,11 @@ train_loader = data_utils.DataLoader(train_dataset,batch_size,shuffle = True, dr
 val_loader = data_utils.DataLoader(val_dataset,batch_size,shuffle = True, drop_last=True)
 test_loader = data_utils.DataLoader(test_dataset,batch_size,shuffle = True, drop_last=True)
 
-
 model = Model(ResidualBlock, UpProj_Block, batch_size)
 model.type(dtype)
 
 # Loading pretrained weights
 model.load_state_dict(load_weights(model,weights_file,dtype))
-
 
 loss_fn = torch.nn.NLLLoss2d().type(dtype)
 
