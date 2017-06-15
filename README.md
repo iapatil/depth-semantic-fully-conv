@@ -1,6 +1,6 @@
-# depth-semantic-fully-conv
+# Fully Convolutional Network for Depth Estimation and Semantic Segmentation
 
-PyTorch implementation of "Fully Convolutional Network for Depth Estimation and Semantic Segmentation" Project for CS231N (Spring 2017) 
+Course Project by Ishan Patil, Yokila Arora, Thao Nguyen for CS231N (Spring 2017)
 
 Our model is based on Laina, Iro, et al. "Deeper depth prediction with fully convolutional residual networks." 3D Vision (3DV), 2016 Fourth International Conference on. IEEE, 2016.
 
