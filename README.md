@@ -10,10 +10,12 @@ We also provide the implementation in PyTorch, while the original implementation
 
 To accomplish data augmentation (applying co-transforms on both input and target images simultaneously, we have used code from https://github.com/ClementPinard/FlowNetPytorch as PyTorch itself currently doesn't support this feature. 
 
-Before running the main file (main.py) to train the model (in model.py) for semantic segmentation task, the below two files must be present in the same directory-
+Before running the main file (main.py) to train the model (in model.py) for semantic segmentation task -
 
 1. NYU Depth Dataset V2 Labelled Dataset (Can be downloaded from http://cs.nyu.edu/~silberman/datasets/nyu_depth_v2.html)
-2. Pre-trained TensorFlow weights as a .npy file for a part of the model from Laina et al. from http://campar.in.tum.de/files/rupprecht/depthpred/NYU_ResNet-UpProj.npy .
+2. Pre-trained TensorFlow weights as a .npy file for a part of the model from Laina et al. from http://campar.in.tum.de/files/rupprecht/depthpred/NYU_ResNet-UpProj.npy.
+3. With the above two files in the same directory as the code, run data_process.py to preprocess the ground truth depth maps and semantic segmentation maps for the labelled dataset
+
 
 
 
