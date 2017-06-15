@@ -4,7 +4,7 @@ Course Project by Ishan Patil, Yokila Arora, Thao Nguyen for CS231N (Spring 2017
 
 Our model is based on Laina, Iro, et al. "Deeper depth prediction with fully convolutional residual networks." 3D Vision (3DV), 2016 Fourth International Conference on. IEEE, 2016.
 
-We extend the above for the semantic segmentation (per-pixel class labelling) task for 38 most occuring classes in the NYU Depth Dataset V2. More particularly, we transfer learn with the pre-trained weights (for the depth estimation task) from this model on an extension of the model as described in our report. Finally, our extended model is able to output both the depth map and the semantic segmentation of the input (single) RGB image. 
+We extend the above model for semantic segmentation (per-pixel class labelling) task for 37(+1 others) most frequent classes in the NYU Depth Dataset V2. More particularly, we transfer learn using the pre-trained weights (for the depth estimation task) from this model on an extension of the model as described in our report. Finally, our model is able to output both the depth map and the semantic segmentation of the input (single) RGB image. 
 
 We provide the implementation in PyTorch, while the original implementation (https://github.com/iro-cp/FCRN-DepthPrediction) is in TensorFlow and MatConvNet frameworks. 
 
