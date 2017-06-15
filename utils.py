@@ -115,7 +115,7 @@ def visualize_model(rgb_image,target_depth,predicted_depth):
 
     plt.axis('off')
 
-def check_accuracy(model, loader,epoch, dtype, visualize = False,get_top_5 = False):
+def check_accuracy(model, loader,epoch, dtype, visualize = False):
   """
   Check the accuracy of the model.
   """
@@ -136,49 +136,26 @@ def check_accuracy(model, loader,epoch, dtype, visualize = False,get_top_5 = Fal
     pred_depth,pred_labels = model(x_var,z_var)
 
     _,preds = pred_labels.data.cpu().max(1)
+    if visualize == True:
+        ##save input
+        input_rgb_image = x_var[0].data.permute(1,2,0).cpu().numpy().astype(np.uint8)
+        plt.imsave('input_rgb_epoch_{}.png'.format(epoch),input_rgb_image)
 
-    if get_top_5:
-        for i in range(x_var.size()[0]):
-            num_correct = (preds[i].long() == y[i].long()).sum()
-            num_total = preds[i].numel()
-            im_acc = num_correct/num_total
-            if im_acc > 0.4:
-                input_rgb_image = x_var[i].data.permute(1,2,0).cpu().numpy().astype(np.uint8)
-                plt.imsave('input_rgb_acc_{}.png'.format(im_acc),input_rgb_image)
+        input_gt_depth_image =  z_var[0].data.permute(1,2,0).cpu().numpy().astype(np.uint8)
+        plt.imsave('input_gt_depth_epoch_{}.png'.format(epoch),input_gt_depth_image)
 
-                input_gt_depth_image =  z_var[i].data.permute(1,2,0).cpu().numpy().astype(np.uint8)
-                plt.imsave('input_gt_depth_acc_{}.png'.format(im_acc),input_gt_depth_image)
+        colored_gt_label = color[y[0].squeeze().cpu().numpy().astype(int)].astype(np.uint8)
+        plt.imsave('gt_label_epoch_{}.png'.format(epoch),colored_gt_label)
 
-                colored_gt_label = color[y[i].squeeze().cpu().numpy().astype(int)].astype(np.uint8)
-                plt.imsave('gt_label_acc_{}.png'.format(im_acc),colored_gt_label)
+        colored_pred_label = color[preds[0].squeeze().cpu().numpy().astype(int)].astype(np.uint8)
+        plt.imsave('pred_label_epoch_{}.png'.format(epoch),colored_pred_label)
 
-                colored_pred_label = color[preds[i].squeeze().cpu().numpy().astype(int)].astype(np.uint8)
-                plt.imsave('pred_label_acc_{}.png'.format(im_acc),colored_pred_label)
+        pred_depth_image = pred_depth[0].data.squeeze().cpu().numpy().astype(np.uint8)
+        plt.imsave('pred_depth_epoch_{}.png'.format(epoch),pred_depth_image,cmap = "gray")
 
-                pred_depth_image = pred_depth[i].data.squeeze().cpu().numpy().astype(np.uint8)
-                plt.imsave('pred_depth_acc_{}.png'.format(im_acc),pred_depth_image,cmap = "gray")
-
-    # if visualize == True:
-    #     ##save input
-    #     input_rgb_image = x_var[0].data.permute(1,2,0).cpu().numpy().astype(np.uint8)
-    #     plt.imsave('input_rgb_epoch_{}.png'.format(epoch),input_rgb_image)
-    #
-    #     input_gt_depth_image =  z_var[0].data.permute(1,2,0).cpu().numpy().astype(np.uint8)
-    #     plt.imsave('input_gt_depth_epoch_{}.png'.format(epoch),input_gt_depth_image)
-    #
-    #     colored_gt_label = color[y[0].squeeze().cpu().numpy().astype(int)].astype(np.uint8)
-    #     plt.imsave('gt_label_epoch_{}.png'.format(epoch),colored_gt_label)
-    #
-    #     colored_pred_label = color[preds[0].squeeze().cpu().numpy().astype(int)].astype(np.uint8)
-    #     plt.imsave('pred_label_epoch_{}.png'.format(epoch),colored_pred_label)
-    #
-    #     pred_depth_image = pred_depth[0].data.squeeze().cpu().numpy().astype(np.uint8)
-    #     plt.imsave('pred_depth_epoch_{}.png'.format(epoch),pred_depth_image,cmap = "gray")
-    #
-    #
-    # num_correct += (preds.long() == y.long()).sum()
-    # num_samples += preds.numel()
-  assert(False)
+    # Computing pixel-wise accuracy    
+    num_correct += (preds.long() == y.long()).sum()
+    num_samples += preds.numel()
 
   # Return the fraction of datapoints that were correctly classified.
   acc = float(num_correct) / num_samples

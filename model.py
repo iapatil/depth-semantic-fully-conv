@@ -1,6 +1,3 @@
-#CHECK
-# NOT DONE DROPOUT, AS THEY HAVE USED KEEP_PROB=1
-# NOT DONE RELU AFTER THE LAST CONV. IT IS DONE IN THE FIGURE GIVEN IN THE PAPER, BUT NOT IN THEIR CODE
 import torch
 import torch.nn as nn
 import numpy as np
@@ -117,30 +114,6 @@ class UpProj_Block(nn.Module):
         linear_indices = x_3 + dims[3] * x_2  + 2 * dims[2] * dims[3] * x_0 * 2 * dims[1] + 2 * dims[2] * dims[3] * x_1
         linear_indices_int = linear_indices.int()
         return linear_indices_int
-        # else:
-        #     x0, x1, x2, x3 = np.meshgrid(before, row, col, after)
-
-        #     x_0 = tf.Variable(x0.reshape([-1]), name = 'x_0')
-        #     x_0.initializer.run()
-
-        #     x_1 = tf.Variable(x1.reshape([-1]), name = 'x_1')
-        #     x_1.initializer.run()
-        #     x_2 = tf.Variable(x2.reshape([-1]), name = 'x_2')
-        #     x_2.initializer.run()
-        #     x_3 = tf.Variable(x3.reshape([-1]), name = 'x_3')
-        #     x_3.initializer.run()
-        #     # print('-'*50)
-
-        #     # print('-'*50)
-        #     linear_indices = x_3 + dims[3].value * x_2  + 2 * dims[2].value * dims[3].value * x_0 * 2 * dims[1].value + 2 * dims[2].value * dims[3].value * x_1
-        #     #print(linear_indices.eval())
-        #     linear_indices_int = tf.to_int32(linear_indices)
-        #     #print(linear_indices_int.eval())
-        #     #print('-'*50)
-
-        #     #print('-'*50)
-
-        #     return linear_indices_int
 
     def forward(self, x, BN=True):
         out1 = self.unpool_as_conv(x, id=1)
@@ -202,14 +175,8 @@ class UpProj_Block(nn.Module):
         #print(A_linear_indices)
         size_ = A_linear_indices.size()[0] + B_linear_indices.size()[0]+C_linear_indices.size()[0]+D_linear_indices.size()[0]
 
-        #Y_flat = np.zeros(size_)
-        #Y_flat = torch.cuda.FloatTensor(size_).zero_()
         Y_flat = torch.cuda.FloatTensor(size_).zero_()
 
-        # Y_flat.scatter_(0, A_linear_indices.type(torch.cuda.LongTensor).squeeze(),A_flat.data)
-        # Y_flat.scatter_(0, B_linear_indices.type(torch.cuda.LongTensor).squeeze(),B_flat.data)
-        # Y_flat.scatter_(0, C_linear_indices.type(torch.cuda.LongTensor).squeeze(),C_flat.data)
-        # Y_flat.scatter_(0, D_linear_indices.type(torch.cuda.LongTensor).squeeze(),D_flat.data)
         Y_flat.scatter_(0, A_linear_indices.type(torch.cuda.LongTensor).squeeze(),A_flat.data)
         Y_flat.scatter_(0, B_linear_indices.type(torch.cuda.LongTensor).squeeze(),B_flat.data)
         Y_flat.scatter_(0, C_linear_indices.type(torch.cuda.LongTensor).squeeze(),C_flat.data)
@@ -344,43 +311,26 @@ class Model(nn.Module):
         out_2 = self.skip_layer4_1(out_2)
         out_2 = self.skip_layer4_2(out_2)
         out_2 = self.conv2(out_2)
-        #print(out_2.size())
         out_2 = self.bn2(out_2)
         out_2 = self.up_conv1(out_2)
         out_2 = self.up_conv2(out_2)
         out_2 = self.up_conv3(out_2)
         out_2 = self.up_conv4(out_2)
 
+        #Depth Prediction Branch
+        out_1 = self.conv3(out_1)
 
-        out_1 = self.conv3(out_1) #for depth
-        #out1 = self.bn3(out1)
         out_1 = self.upsample(out_1)
-        #print(out_1.size())
-        #print('Output 1 size: ',out_1.size())
 
-
-        #print(out.size())# (1L, 64L, 128L, 160L)
-
-
-        # semantic labels
+        #Semantic Segmentation Branch
         out_2 = torch.cat((temp_out_1,out_2),dim = 1)
-        #print('Just after concatenation: ',out_2.size())
         out_2 = self.up_conv5(out_2)
-        #print(out2.size())
         out_2 = self.conv4(out_2)
         out_2 = self.bn4(out_2)
         out_2 = self.relu(out_2)
         out_2 = self.conv5(out_2)
         out_2 = self.bn5(out_2)
         out_2 = self.relu(out_2)
-
-
-        #out2 = self.up_conv6(out2)
-        #print(out2.size())  #(1L, 16L, 512L, 640L)
         out_2 = self.upsample(out_2)
-        #print('Output 2 size: ',out_2.size())
-        #assert(False)
-        #print(out2.size()) #(1L, 32L, 480L, 640L)
-        # out2 = (1,37,480,640)
-        #assert(False)
+
         return out_1, out_2

@@ -46,8 +46,7 @@ class ListDataset(data.Dataset):
         input_rgb_im = input_im
         input_depth_im  = torch.cat((target_depth_im,target_depth_im,target_depth_im),dim = 0)
         target_im = target_label_im
-        # print('in nyu loader')
-        # print(np.unique(target_im.cpu().numpy()))
+
         return input_rgb_im,input_depth_im,target_im
 
     def __len__(self):

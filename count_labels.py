@@ -13,10 +13,8 @@ def convert_nyu(path):
 
     labels_count = np.zeros(8941)
 
-    #trains = []
-    #max_ = 0
+
     for i, label in enumerate(f['labels']):
-    #for i,label in enumerate(f['labels']):
 
         ra_label = label.transpose(1,0)
 
@@ -29,9 +27,6 @@ def convert_nyu(path):
     sorted_values = np.sort(labels_count)
     print('Labels: ',sorted_labels[-10:])
     print('Counts: ',sorted_values[-10:])
-
-    ## wall,unlabeled,floor,cabinet,bed,chair,sofa,table,door,window
-
 
 
 if __name__ == '__main__':

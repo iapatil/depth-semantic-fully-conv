@@ -3,17 +3,6 @@ import torch
 
 def load_weights(model,weights_file,dtype):
 
-    # Print parameter names for our and their model for debugging
-
-    # for name, param in model.named_parameters():
-    #     print(name+'\n')
-
-
-    # for op_name in data_dict:
-    #    print(op_name)
-    #    for param_name, data in iter(data_dict[op_name].items()):
-    #         print(param_name)
-
     model_params = model.state_dict()
     data_dict = np.load(weights_file, encoding='latin1').item()
 
@@ -456,6 +445,5 @@ def load_weights(model,weights_file,dtype):
 
     model_params['conv3.weight'] = torch.from_numpy(data_dict['ConvPred']['weights']).type(dtype).permute(3,2,0,1)
     model_params['conv3.bias'] = torch.from_numpy(data_dict['ConvPred']['biases']).type(dtype)
-    # print('Conv3 bias loaded from pretrained: ')
-    # print(model_params['conv3.bias'])
+
     return model_params
