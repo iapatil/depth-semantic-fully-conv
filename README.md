@@ -6,7 +6,7 @@ Our model is based on Laina, Iro, et al. "Deeper depth prediction with fully con
 
 We extend the above model for semantic segmentation (per-pixel class labelling) task for 37(+1 others) most frequent classes in the NYU Depth Dataset V2. More particularly, we transfer learn using the pre-trained weights (for the depth estimation task) from this model on an extension of the model as shown below. Finally, our model is able to output both the depth map and the semantic segmentation of the input (single) RGB image. 
 
-![Our model](https://github.com/iapatil/depth-semantic-fully-conv/model_fig.png)
+![Our model](https://github.com/iapatil/depth-semantic-fully-conv/blob/master/model_fig.png)
 
 
 We provide the implementation in PyTorch, while the original implementation (https://github.com/iro-cp/FCRN-DepthPrediction) is in TensorFlow and MatConvNet frameworks. 
