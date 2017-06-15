@@ -1,3 +1,4 @@
+# Model implementation in PyTorch
 import torch
 import torch.nn as nn
 import numpy as np
@@ -9,10 +10,9 @@ import matplotlib.pyplot as plt
 from PIL import Image
 
 class ResidualBlock(nn.Module):
-    def __init__(self, in_channels, d1, d2, skip=False, stride = 1, print_=False):
+    def __init__(self, in_channels, d1, d2, skip=False, stride = 1):
         super(ResidualBlock, self).__init__()
         self.skip = skip
-        self.print_ = print_
 
         self.conv1 = nn.Conv2d(in_channels, d1, 1, stride = stride,bias = False)
         self.bn1 = nn.BatchNorm2d(d1)
@@ -37,47 +37,16 @@ class ResidualBlock(nn.Module):
         out = self.relu(out)
         out = self.conv3(out)
         out = self.bn3(out)
-        if self.print_:
-            print('')
-            output_1 = np.swapaxes(np.squeeze(out.data.numpy()[0,0,:,:]),0,1)
-            output_1 = np.uint8(255*(output_1-np.min(output_1))/(np.max(output_1)-np.min(output_1)))
-
-            if self.skip:
-                print('SKip layer')
-            else:
-                print('proj layer')
-            fig = plt.figure()
-            ii = plt.imshow(output_1, interpolation='nearest')
-            fig.colorbar(ii)
-            #plt.show()
 
         if self.skip:
             residual = x
         else:
             residual = self.conv4(x)
             residual = self.bn4(residual)
-            #plt.imshow(output_1, cmap='gray')
-
-            if self.print_:
-                print('residual')
-                output_1 = np.swapaxes(np.squeeze(residual.data.numpy()[0,0,:,:]),0,1)
-                output_1 = np.uint8(255*(output_1-np.min(output_1))/(np.max(output_1)-np.min(output_1)))
-                fig = plt.figure()
-                ii = plt.imshow(output_1, interpolation='nearest')
-                fig.colorbar(ii)
-                #plt.show()
 
         out += residual
         out = self.relu(out)
-        if not self.skip:
-            if self.print_:
-                print('final proj layer ')
-                output_1 = np.swapaxes(out.data.numpy()[0,0,:,:],0,1)
-                output_1 = np.uint8(255*(output_1-np.min(output_1))/(np.max(output_1)-np.min(output_1)))
-                fig = plt.figure()
-                ii = plt.imshow(output_1, interpolation='nearest')
-                fig.colorbar(ii)
-                #plt.show()
+        
         return out
 
 class UpProj_Block(nn.Module):
@@ -172,7 +141,6 @@ class UpProj_Block(nn.Module):
         C_flat = (out3.permute(1, 0, 2, 3)).contiguous().view(-1)
         D_flat = (out4.permute(1, 0, 2, 3)).contiguous().view(-1)
 
-        #print(A_linear_indices)
         size_ = A_linear_indices.size()[0] + B_linear_indices.size()[0]+C_linear_indices.size()[0]+D_linear_indices.size()[0]
 
         Y_flat = torch.cuda.FloatTensor(size_).zero_()
@@ -204,13 +172,14 @@ class Model(nn.Module):
         super(Model, self).__init__()
         self.batch_size=batch_size
 
+        # Layers for Depth Estimation
         self.conv1 = nn.Conv2d(3, 64, kernel_size = 7, stride=2, padding=4)
         self.bn1 = nn.BatchNorm2d(64)
         self.relu = nn.ReLU(inplace=True)
         self.max_pool = nn.MaxPool2d(3,stride=2)
 
-        self.proj_layer1 = self.make_proj_layer(block1, 64 , d1 = 64, d2 = 256, stride = 1, print_=False)
-        self.skip_layer1_1 = self.make_skip_layer(block1, 256, d1 = 64, d2 = 256, stride=1, print_=False)
+        self.proj_layer1 = self.make_proj_layer(block1, 64 , d1 = 64, d2 = 256, stride = 1)
+        self.skip_layer1_1 = self.make_skip_layer(block1, 256, d1 = 64, d2 = 256, stride=1)
         self.skip_layer1_2 = self.make_skip_layer(block1, 256, d1 = 64, d2 = 256, stride=1)
 
         self.proj_layer2 = self.make_proj_layer(block1, 256 , d1 = 128, d2 = 512, stride = 2)
@@ -238,23 +207,22 @@ class Model(nn.Module):
         self.up_conv4 = self.make_up_conv_layer(block2, 128, 64, self.batch_size)
 
         self.conv3 = nn.Conv2d(64,1,3, padding=1)
-        #self.bn3 = nn.BatchNorm2d(1, affine=False)
+
+        # Layers for Semantic Segmentation
         self.up_conv5 = self.make_up_conv_layer(block2,128 ,64 ,self.batch_size)
-        self.conv4 = nn.Conv2d(64,48,3,padding=1) #for semantic labeling
+        self.conv4 = nn.Conv2d(64,48,3,padding=1) 
         self.bn4 = nn.BatchNorm2d(48)
-        self.conv5 = nn.Conv2d(48,38,3,padding=1) #for semantic labeling
+        self.conv5 = nn.Conv2d(48,38,3,padding=1) 
         self.bn5 = nn.BatchNorm2d(38)
         self.dropout = nn.Dropout2d(p=1)
 
-        #self.up_conv6 = self.make_up_conv_layer(block2,32 ,16 ,self.batch_size)
-
         self.upsample = nn.UpsamplingBilinear2d(size = (480,640))
 
-    def make_proj_layer(self, block, in_channels, d1, d2, stride = 1, pad=0, print_=False):
-        return block(in_channels, d1, d2, skip=False, stride = stride, print_=print_)
+    def make_proj_layer(self, block, in_channels, d1, d2, stride = 1, pad=0):
+        return block(in_channels, d1, d2, skip=False, stride = stride)
 
-    def make_skip_layer(self, block, in_channels, d1, d2, stride=1, pad=0, print_=False):
-        return block(in_channels, d1, d2, skip=True, stride=stride,print_=print_)
+    def make_skip_layer(self, block, in_channels, d1, d2, stride=1, pad=0):
+        return block(in_channels, d1, d2, skip=True, stride=stride)
 
     def make_up_conv_layer(self, block, in_channels, out_channels, batch_size):
         return block(in_channels, out_channels, batch_size)
@@ -281,7 +249,6 @@ class Model(nn.Module):
         out_1 = self.skip_layer4_1(out_1)
         out_1 = self.skip_layer4_2(out_1)
         out_1 = self.conv2(out_1)
-        #print(out.size())
         out_1 = self.bn2(out_1)
         out_1 = self.up_conv1(out_1)
         out_1 = self.up_conv2(out_1)
@@ -319,7 +286,6 @@ class Model(nn.Module):
 
         #Depth Prediction Branch
         out_1 = self.conv3(out_1)
-
         out_1 = self.upsample(out_1)
 
         #Semantic Segmentation Branch
