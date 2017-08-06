@@ -19,6 +19,8 @@ Before running the main file (main.py) to train the model (in model.py) for sema
 2. Download the pre-trained TensorFlow weights as a .npy file for a part of the model from Laina et al. from http://campar.in.tum.de/files/rupprecht/depthpred/NYU_ResNet-UpProj.npy.
 3. With the above two files in the same directory as the code, run data_process.py to preprocess the ground truth depth maps and semantic segmentation maps for the labeled dataset.
 
+More details can be found in our report (http://cs231n.stanford.edu/reports/2017/pdfs/209.pdf) 
+
 
 
 
