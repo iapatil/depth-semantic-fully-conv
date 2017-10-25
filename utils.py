@@ -18,8 +18,6 @@ from torchvision import utils
 import flow_transforms
 import torch
 from nyu_dataset_loader import *
-from loss_function import *
-from eval_depth import *
 import warnings
 from torch.optim.optimizer import Optimizer
 import shutil

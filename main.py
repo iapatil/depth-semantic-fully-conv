@@ -18,7 +18,6 @@ from torchvision import utils
 import flow_transforms
 import torch
 from nyu_dataset_loader import *
-from loss_function import *
 from utils import *
 
 input_rgb_images_dir = 'data/nyu_datasets_changed/input/'
